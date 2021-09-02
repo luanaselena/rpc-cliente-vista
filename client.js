@@ -14,6 +14,9 @@ app.listen(app.get("PORT"), () => {
   console.log("Running!");
 })
 
+
+
+
 //Url del .proto del Server
 var PROTO_PATH = __dirname + '/../../Server/rcp-servidor/src/main/resources/farmacia.proto';
 
@@ -54,7 +57,4 @@ var farmacia = new proto.farmacia('localhost:9090', grpc.credentials.createInsec
 farmacia.alta({id: 'you', nombreMedicamento: 'you'}, function(err, response) {
   console.log(response);
   //console.log(err);
-
-
-  return response;
 });
