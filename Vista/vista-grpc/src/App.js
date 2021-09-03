@@ -1,13 +1,9 @@
-import axios from 'axios';
+import Tabla from './components/ui/Tabla';
 
 function App() {
 
-  axios.get('http://localhost:5000/hello').then(res => console.log(res));
-
   return (
-    <div className="App">
-      Hola
-    </div>
+    <Tabla />
   );
 }
 
