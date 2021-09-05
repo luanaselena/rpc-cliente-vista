@@ -7,7 +7,9 @@ app.use(cors({origin: 'http://localhost:3000'}));
 app.set("PORT", process.env.PORT || 5000);
 
 app.get("/hello", (req, res) => {
-  res.send("Hola!!!! Desde cliente");
+  //example = [{"id": 111}, {"Nombre": "ibuprofeno 600"}, {"Droga": "Feno"}, {"Tipo": "","b","c"];
+  var example = "aaaa";
+  res.send(example);
 })
 
 app.listen(app.get("PORT"), () => {
