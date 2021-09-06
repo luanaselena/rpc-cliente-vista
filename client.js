@@ -1,62 +1,43 @@
-const express = require('express');
-var cors = require('cors');
+//Importaciones de librerias
+const express = require("express");
+var cors = require("cors");
+const axios = require("axios");
+const farmacia = require('./configuraciones');
 
+//Configuraciones de express (sirve para que el cliente funcione como server para comunicarse con la vista)
 const app = express();
-
-app.use(cors({origin: 'http://localhost:3000'}));
+app.use(cors({ origin: "http://localhost:3000" }));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 app.set("PORT", process.env.PORT || 5000);
 
+//-------------- FIN DE CONFIGURACIONES --------------------
+
+//Get de prueba
 app.get("/hello", (req, res) => {
-  //example = [{"id": 111}, {"Nombre": "ibuprofeno 600"}, {"Droga": "Feno"}, {"Tipo": "","b","c"];
-  var example = "aaaa";
-  res.send(example);
-})
+	res.send("aaaa");
+});
 
-app.listen(app.get("PORT"), () => {
-  console.log("Running!");
-})
-
-
-
-
-//Url del .proto del Server
-var PROTO_PATH = __dirname + '/../../Server/rcp-servidor/src/main/resources/farmacia.proto';
-
-//Librerias de grpc
-var grpc = require('@grpc/grpc-js');
-var protoLoader = require('@grpc/proto-loader');
-const axios = require('axios');
-
-var packageDefinition = protoLoader.loadSync(
-    PROTO_PATH,
-    {keepCase: true,
-     longs: String,
-     enums: String,
-     defaults: true,
-     oneofs: true
+//Metodo de alta de medicamento
+function altaMedicamento(codigo, nombre, droga, tipo) {
+	farmacia.alta({ codigo: codigo, nombre: nombre, droga: droga, tipo: tipo}, function (err, response) {
+		
+    //Envia la respuesta a la vista
+    app.get("/alta", (req, res) => {
+      res.send(response);
     });
 
-//Carga del package del proto
-var proto = grpc.loadPackageDefinition(packageDefinition);
+		console.log(response);
+	});
+}
 
-// function main() {
-//   //Conexion con el Server
-//   var farmacia = new proto.farmacia('localhost:9090', grpc.credentials.createInsecure());
+//Traer los datos de alta de medicamento de la vista al cliente
+app.post("/alta", (req, res) => {
+  console.log("Alta medicamento: ")
+	console.log(req.body);
+	altaMedicamento(req.body.codigo, req.body.nombre, req.body.droga, req.body.tipo);
+});
 
-//   //Llamado al metodo de alta
-//   farmacia.alta({id: 'you', nombreMedicamento: 'you'}, function(err, response) {
-//     console.log(response);
-//     //console.log(err);
-//   });
-// }
-
-// main();
-
-//Conexion con el Server
-var farmacia = new proto.farmacia('localhost:9090', grpc.credentials.createInsecure());
-
-//Llamado al metodo de alta
-farmacia.alta({id: 'you', nombreMedicamento: 'you'}, function(err, response) {
-  console.log(response);
-  //console.log(err);
+app.listen(app.get("PORT"), () => {
+	console.log("Running!");
 });
