@@ -102,9 +102,6 @@ const TablaTipoMedicamentos = () => {
 
 
 
-	//axios.get("http://localhost:5000/hello").then((res) => console.log(res));
-
-
 	const handleSubmit = () => {
 
 		let meds = [

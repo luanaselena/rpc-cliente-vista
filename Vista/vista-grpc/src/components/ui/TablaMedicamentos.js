@@ -97,14 +97,16 @@ const TablaMedicamentos = () => {
 			medAux = medAux.filter((t) => t.id !== med.id);
 			setmedicamentos(medAux);
 			return Promise.resolve(med);
-			// const task = medicamentos.find((t) => t.id === data.id);
-			// const medRestantes = medicamentos.filter((t) => t.id !== task.id);
-			// setmedicamentos(medRestantes);
-			// return Promise.resolve(task);
 		},
 	};
 
-	//axios.get("http://localhost:5000/hello").then((res) => console.log(res));
+	axios.post("http://localhost:5000/alta", {nombre: "Messi", codigo: "aaa", droga: "ccc", tipo: 1}).then(res => {
+		console.log(res);
+	}).catch(e => {
+		console.log(e);
+	})
+
+	axios.get("http://localhost:5000/alta").then((res) => console.log(res));
 
 	const handleSubmit = () => {
 		let meds = [
