@@ -16,32 +16,6 @@ import Button from "react-bootstrap/Button";
 // Component's Base CSS
 import "./index.css";
 
-const SORTERS = {
-	NUMBER_ASCENDING: (mapper) => (a, b) => mapper(a) - mapper(b),
-	NUMBER_DESCENDING: (mapper) => (a, b) => mapper(b) - mapper(a),
-	STRING_ASCENDING: (mapper) => (a, b) => mapper(a).localeCompare(mapper(b)),
-	STRING_DESCENDING: (mapper) => (a, b) => mapper(b).localeCompare(mapper(a)),
-};
-
-const getSorter = (data) => {
-	const mapper = (x) => x[data.field];
-	let sorter = SORTERS.STRING_ASCENDING(mapper);
-
-	if (data.field === "id") {
-		sorter =
-			data.direction === "ascending"
-				? SORTERS.NUMBER_ASCENDING(mapper)
-				: SORTERS.NUMBER_DESCENDING(mapper);
-	} else {
-		sorter =
-			data.direction === "ascending"
-				? SORTERS.STRING_ASCENDING(mapper)
-				: SORTERS.STRING_DESCENDING(mapper);
-	}
-
-	return sorter;
-};
-
 const styles = {
 	container: { margin: "auto", width: "fit-content" },
 };
@@ -49,14 +23,14 @@ const styles = {
 const TablaMedicamentos = () => {
 	let tasks = [
 		{
-			id: 1,
+			codigo: 1,
 			nombre: "Create an example",
-			descripcion: "Create an example of how to use the component",
+			droga: "Create an example of how to use the component",
 		},
 		{
-			id: 2,
+			codigo: 2,
 			nombre: "Improve",
-			descripcion: "Improve the component!",
+			droga: "Improve the component!",
 		},
 	];
 
@@ -67,58 +41,52 @@ const TablaMedicamentos = () => {
 
 	let count = medicamentos.length;
 	const service = {
-		fetchItems: (payload) => {
-			let result = Array.from(medicamentos);
-			result = result.sort(getSorter(payload.sort));
-			return Promise.resolve(result);
-		},
 		create: (med) => {
 			count += 1;
 			var medAux = medicamentos;
-			console.log(medicamentos);
-			console.log(medAux);
 			medAux.push({
 				...med,
-				id: count,
+				codigo: count,
 			});
 			console.log(medAux);
 			setmedicamentos(medAux);
+
+			axios.post("http://localhost:5000/alta", {
+				codigo: med.codigo,
+				nombre: med.nombre,
+				droga: med.droga,
+				tipo: med.tipo
+			});
+			axios.get("http://localhost:5000/alta").then((res) => console.log(res));
+
 			return Promise.resolve(med);
 		},
 		update: (data) => {
-			var med = medicamentos.find((t) => t.id === data.id);
+			var med = medicamentos.find((t) => t.codigo === data.codigo);
 			med.nombre = data.nombre;
-			med.descripcion = data.descripcion;
+			med.droga = data.droga;
 			return Promise.resolve(med);
 		},
 		delete: (data) => {
-			var med = medicamentos.find((t) => t.id === data.id);
+			var med = medicamentos.find((t) => t.codigo === data.codigo);
 			var medAux = medicamentos;
-			medAux = medAux.filter((t) => t.id !== med.id);
+			medAux = medAux.filter((t) => t.codigo !== med.codigo);
 			setmedicamentos(medAux);
 			return Promise.resolve(med);
 		},
 	};
 
-	axios.post("http://localhost:5000/alta", {nombre: "Messi", codigo: "aaa", droga: "ccc", tipo: 1}).then(res => {
-		console.log(res);
-	}).catch(e => {
-		console.log(e);
-	})
-
-	axios.get("http://localhost:5000/alta").then((res) => console.log(res));
-
 	const handleSubmit = () => {
 		let meds = [
 			{
-				id: 1,
+				codigo: 1,
 				nombre: "Ibuprofeno",
-				descripcion: "Create an example of how to use the component",
+				droga: "Create an example of how to use the component",
 			},
 			{
-				id: 2,
+				codigo: 2,
 				nombre: "Ejemplo 2",
-				descripcion: "Improve the component!",
+				droga: "Improve the component!",
 			},
 		];
 
@@ -138,7 +106,7 @@ const TablaMedicamentos = () => {
 									onChange={(e) => setcolumnabusqueda(e.target.value)}
 								>
 									<option value="columna">Columna</option>
-									<option value="id">ID</option>
+									<option value="codigo">Codigo</option>
 									<option value="nombre">Nombre</option>
 									<option value="droga">Droga</option>
 									<option value="tipo">Tipo</option>
@@ -188,10 +156,10 @@ const TablaMedicamentos = () => {
 
 				<CRUDTable caption="Medicamentos" items={medicamentos}>
 					<Fields>
-						<Field name="id" label="Id" hideInCreateForm readOnly />
+						<Field name="codigo" label="Codigo" placeholder="Codigo (XXX-NNNNN-Y)" />
 						<Field name="activo" label="Activo" placeholder="Activo" />
 						<Field name="nombre" label="Nombre" placeholder="Nombre" />
-						<Field name="descripcion" label="Droga" placeholder="Droga" />
+						<Field name="droga" label="Droga" placeholder="Droga" />
 						<Field name="tipo" label="Tipo" placeholder="Tipo" />
 					</Fields>
 					<CreateForm
@@ -201,12 +169,20 @@ const TablaMedicamentos = () => {
 						submitText="Agregar"
 						validate={(values) => {
 							const errors = {};
-							if (!values.nombre) {
-								errors.nombre = "Please, provide task's title";
+							if (!values.codigo) {
+								errors.codigo = "Ingresar un codigo";
 							}
 
-							if (!values.descripcion) {
-								errors.descripcion = "Please, provide task's description";
+							if (!values.nombre) {
+								errors.nombre = "Ingresar un nombre";
+							}
+
+							if (!values.droga) {
+								errors.droga = "Ingresar una droga";
+							}
+
+							if (!values.tipo) {
+								errors.droga = "Seleccionar un tipo";
 							}
 
 							return errors;
@@ -221,12 +197,20 @@ const TablaMedicamentos = () => {
 						validate={(values) => {
 							const errors = {};
 
-							if (!values.nombre) {
-								errors.nombre = "Please, provide task's title";
+							if (!values.codigo) {
+								errors.codigo = "Ingresar un codigo";
 							}
 
-							if (!values.descripcion) {
-								errors.descripcion = "Please, provide task's description";
+							if (!values.nombre) {
+								errors.nombre = "Ingresar un nombre";
+							}
+
+							if (!values.droga) {
+								errors.droga = "Ingresar una droga";
+							}
+
+							if (!values.tipo) {
+								errors.droga = "Seleccionar un tipo";
 							}
 
 							return errors;
@@ -238,13 +222,6 @@ const TablaMedicamentos = () => {
 						trigger="Delete"
 						onSubmit={(med) => service.delete(med)}
 						submitText="Eliminar"
-						validate={(values) => {
-							const errors = {};
-							if (!values.id) {
-								errors.id = "Please, provide id";
-							}
-							return errors;
-						}}
 					/>
 				</CRUDTable>
 			</div>
