@@ -18,12 +18,14 @@ app.get("/hello", (req, res) => {
 	res.send("aaaa");
 });
 
-//Metodo de alta de medicamento
+//----METODOS----
+
+//Alta de medicamento
 function altaMedicamento(codigo, nombre, droga, tipo) {
 	farmacia.alta({ codigo: codigo, nombre: nombre, droga: droga, tipo: tipo}, function (err, response) {
 		
     //Envia la respuesta a la vista
-    app.get("/alta", (req, res) => {
+    app.get("/altamedicamento", (req, res) => {
       res.send(response);
     });
 
@@ -31,13 +33,86 @@ function altaMedicamento(codigo, nombre, droga, tipo) {
 	});
 }
 
-//Traer los datos de alta de medicamento de la vista al cliente
-app.post("/alta", (req, res) => {
+function altaCategoriaMedicamento(id, nombre, activo) {
+	//MODIFICAR METODO
+	farmacia.altaTipo({ id: id, nombre: nombre, baja: activo}, function (err, response) {
+		
+    //Envia la respuesta a la vista
+    app.get("/altatipomedicamento", (req, res) => {
+      res.send(response);
+    });
+
+		console.log(response);
+	});
+}
+
+function bajaCategoriaMedicamento(id, activo) {
+	//MODIFICAR METODO
+	farmacia.bajaTipo({ id: id, baja: activo}, function (err, response) {
+		
+    //Envia la respuesta a la vista
+    app.get("/bajatipomedicamento", (req, res) => {
+      res.send(response);
+    });
+
+		console.log(response);
+	});
+}
+
+function busquedaMedicamento(columna, filtro, busqueda) {
+	//MODIFICAR METODO
+	farmacia.busquedaPorPalabra({ columna: columna, filtro: filtro, busqueda: busqueda}, function (err, response) {
+		
+    //Envia la respuesta a la vista
+    app.get("/busquedamedicamento", (req, res) => {
+      res.send(response);
+    });
+
+		console.log(response);
+	});
+}
+
+
+//----LLAMADAS AXIOS----
+
+//Alta medicamento
+app.post("/altamedicamento", (req, res) => {
   console.log("Alta medicamento: ")
 	console.log(req.body);
 	altaMedicamento(req.body.codigo, req.body.nombre, req.body.droga, req.body.tipo);
 });
 
+//Alta categoria medicamento
+app.post("/altatipomedicamento", (req, res) => {
+  console.log("Alta categoria medicamento: ")
+	console.log(req.body);
+	
+	req.body.activo = req.body.activo === "Si" ? 0 : 1;
+
+	altaCategoriaMedicamento(req.body.id, req.body.nombre, req.body.activo);
+});
+
+//Baja categoria medicamento
+app.post("/bajatipomedicamento", (req, res) => {
+  console.log("Baja categoria medicamento: ")
+	console.log(req.body);
+	
+	req.body.activo = req.body.activo === "Si" ? 0 : 1;
+
+	bajaCategoriaMedicamento(req.body.id, req.body.activo);
+});
+
+//Busqueda medicamento
+app.post("/busquedamedicamento", (req, res) => {
+  console.log("Busqueda medicamento: ")
+	console.log(req.body);
+
+	busquedaMedicamento(req.body.columna, req.body.filtro, req.body.busqueda);
+});
+
+
+
+//Inicio de la app
 app.listen(app.get("PORT"), () => {
 	console.log("Running!");
 });
