@@ -5,6 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
+import axios from 'axios';
 
 const VerificarCodigo = () => {
 	const [submit, setsubmit] = useState(false);
@@ -17,8 +18,30 @@ const VerificarCodigo = () => {
 
 		//Axios
 
-		setprioritario("prioritario");
-		setverificador(1);
+		axios.post("http://localhost:5000/verificardigito", {codigo: codigo});
+		axios
+			.get("http://localhost:5000/verificardigito")
+			.then((res) => {
+				console.log(res.data.responseCode);
+				console.log(res.data.responseMessage);
+				if(res.data.responseCode === '1' || res.data.responseCode === '2'){
+					setprioritario("prioritario");
+				} else {
+					setprioritario("no prioritario");
+				}
+
+				if(res.data.responseCode === '1' || res.data.responseCode === '3'){
+					setverificador("correcto");
+				} else {
+					setverificador("incorrecto");
+				}
+
+			});
+
+
+
+		//setprioritario("prioritario");
+		//setverificador(1);
 		setsubmit(true);
 	};
 
@@ -60,7 +83,7 @@ const VerificarCodigo = () => {
 						</Alert>
 						<Alert
 							key="primary2"
-							variant={verificador.toString().length > 3 ? "success" : "danger"}
+							variant={verificador === "correcto" ? "success" : "danger"}
 						>
 							El codigo verificador es {verificador}.
 						</Alert>

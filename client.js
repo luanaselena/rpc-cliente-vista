@@ -59,7 +59,7 @@ function bajaCategoriaMedicamento(id, activo) {
 
 function busquedaMedicamento(columna, filtro, busqueda) {
 	//MODIFICAR METODO
-	farmacia.busquedaPorPalabra({ columna: columna, filtro: filtro, busqueda: busqueda}, function (err, response) {
+	farmacia.busquedaPorPalabra({ columna: columna, filtro: filtro, buscar: busqueda}, function (err, response) {
 		
     //Envia la respuesta a la vista
     app.get("/busquedamedicamento", (req, res) => {
@@ -67,6 +67,31 @@ function busquedaMedicamento(columna, filtro, busqueda) {
     });
 
 		console.log("Mensaje: " + response.responseMessage + "\n");
+	});
+}
+
+// function listaMedicamentos() {
+// 	farmacia.listadoMedicamentos({ }, function (err, response) {
+
+// 		//Envia la respuesta a la vista
+//     app.get("/listamedicamentosrespuesta", (req, res) => {
+//       res.send(response);
+//     });
+
+// 		//console.log("Mensaje: " + response.responseMessage + "\n");
+// 	});
+// }
+
+
+function verificarDigito(codigo) {
+	farmacia.digitoVerificador({ digito: codigo}, function (err, response) {
+		
+    //Envia la respuesta a la vista
+    app.get("/verificardigito", (req, res) => {
+      res.send(response);
+    });
+
+		console.log("Mensaje: " + response + "\n");
 	});
 }
 
@@ -106,6 +131,18 @@ app.post("/busquedamedicamento", (req, res) => {
 	console.log(req.body);
 
 	busquedaMedicamento(req.body.columna, req.body.filtro, req.body.busqueda);
+});
+
+// //Lista de medicamentos
+// app.get("/listamedicamentossocilitud", (req, res) => {
+// 	listaMedicamentos();
+// })
+
+app.post("/verificardigito", (req, res) => {
+	console.log("Verificar digito: ")
+	console.log(req.body);
+
+	verificarDigito(req.body.codigo);
 });
 
 
