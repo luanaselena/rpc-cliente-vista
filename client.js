@@ -29,12 +29,11 @@ function altaMedicamento(codigo, nombre, droga, tipo) {
       res.send(response);
     });
 
-		console.log(response);
+		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
 }
 
 function altaCategoriaMedicamento(id, nombre, activo) {
-	//MODIFICAR METODO
 	farmacia.altaTipo({ id: id, nombre: nombre, baja: activo}, function (err, response) {
 		
     //Envia la respuesta a la vista
@@ -42,12 +41,11 @@ function altaCategoriaMedicamento(id, nombre, activo) {
       res.send(response);
     });
 
-		console.log(response);
+		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
 }
 
 function bajaCategoriaMedicamento(id, activo) {
-	//MODIFICAR METODO
 	farmacia.bajaTipo({ id: id, baja: activo}, function (err, response) {
 		
     //Envia la respuesta a la vista
@@ -55,7 +53,7 @@ function bajaCategoriaMedicamento(id, activo) {
       res.send(response);
     });
 
-		console.log(response);
+		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
 }
 
@@ -68,7 +66,7 @@ function busquedaMedicamento(columna, filtro, busqueda) {
       res.send(response);
     });
 
-		console.log(response);
+		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
 }
 
