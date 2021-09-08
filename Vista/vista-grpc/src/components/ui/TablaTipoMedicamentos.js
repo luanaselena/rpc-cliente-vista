@@ -58,7 +58,7 @@ const TablaTipoMedicamentos = () => {
 				nombre: med.nombre,
 				activo: med.activo,
 			});
-			axios.get("http://localhost:5000/altatipomedicamento").then((res) => console.log(res));
+			axios.get("http://localhost:5000/altatipomedicamento").then((res) => console.log(res.data.responseMessage));
 
 			return Promise.resolve(med);
 		},
@@ -76,7 +76,7 @@ const TablaTipoMedicamentos = () => {
 				id: med.id,
 				activo: med.activo,
 			});
-			axios.get("http://localhost:5000/bajatipomedicamento").then((res) => console.log(res));
+			axios.get("http://localhost:5000/bajatipomedicamento").then((res) => console.log(res.data.responseMessage));
 
 			return Promise.resolve(med);
 		},

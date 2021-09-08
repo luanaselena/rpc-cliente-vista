@@ -32,6 +32,8 @@ const TablaMedicamentos = () => {
 		},
 	];
 
+
+	
 	const categorias = ["Capsulas", "Comprimidos", "Cremas"];
 
 	const [medicamentos, setmedicamentos] = useState(tasks);
@@ -59,7 +61,7 @@ const TablaMedicamentos = () => {
 			});
 			axios
 				.get("http://localhost:5000/altamedicamento")
-				.then((res) => console.log(res));
+				.then((res) => console.log(res.data.responseMessage));
 
 			return Promise.resolve(med);
 		},
@@ -130,7 +132,6 @@ const TablaMedicamentos = () => {
 				break;
 
 			default:
-				//Declaraciones ejecutadas cuando ninguno de los valores coincide con el valor de la expresión
 				break;
 		}
 
@@ -143,7 +144,7 @@ const TablaMedicamentos = () => {
 		});
 		axios
 			.get("http://localhost:5000/busquedamedicamento")
-			.then((res) => console.log(res));
+			.then((res) => console.log(res.data.responseMessage));
 	};
 
 	return (
