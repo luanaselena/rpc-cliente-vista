@@ -12,8 +12,6 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-
-// Component's Base CSS
 import "./index.css";
 
 const styles = {
@@ -34,6 +32,8 @@ const TablaMedicamentos = () => {
 		},
 	];
 
+	const categorias = ["Capsulas", "Comprimidos", "Cremas"];
+
 	const [medicamentos, setmedicamentos] = useState(tasks);
 	const [busqueda, setbusqueda] = useState("");
 	const [columnabusqueda, setcolumnabusqueda] = useState("columna");
@@ -51,13 +51,15 @@ const TablaMedicamentos = () => {
 			console.log(medAux);
 			setmedicamentos(medAux);
 
-			axios.post("http://localhost:5000/alta", {
+			axios.post("http://localhost:5000/altamedicamento", {
 				codigo: med.codigo,
 				nombre: med.nombre,
 				droga: med.droga,
-				tipo: med.tipo
+				tipo: med.tipo,
 			});
-			axios.get("http://localhost:5000/alta").then((res) => console.log(res));
+			axios
+				.get("http://localhost:5000/altamedicamento")
+				.then((res) => console.log(res));
 
 			return Promise.resolve(med);
 		},
@@ -76,21 +78,72 @@ const TablaMedicamentos = () => {
 		},
 	};
 
-	const handleSubmit = () => {
-		let meds = [
-			{
-				codigo: 1,
-				nombre: "Ibuprofeno",
-				droga: "Create an example of how to use the component",
-			},
-			{
-				codigo: 2,
-				nombre: "Ejemplo 2",
-				droga: "Improve the component!",
-			},
-		];
+	const handleSubmit = (e) => {
+		e.preventDefault();
 
-		setmedicamentos(meds);
+		var medAux = medicamentos;
+
+		switch (columnabusqueda) {
+			case "codigo":
+				if (filtrobusqueda === "default") {
+					medAux = medAux.filter((m) =>
+						m.codigo.toLowerCase().includes(busqueda.toLowerCase())
+					);
+				} else if (filtrobusqueda === "comienza") {
+					medAux = medAux.filter((m) =>
+						m.codigo.toLowerCase().startsWith(busqueda.toLowerCase())
+					);
+				}
+				break;
+			case "nombre":
+				if (filtrobusqueda === "default") {
+					medAux = medAux.filter((m) =>
+						m.nombre.toLowerCase().includes(busqueda.toLowerCase())
+					);
+				} else if (filtrobusqueda === "comienza") {
+					medAux = medAux.filter((m) =>
+						m.nombre.toLowerCase().startsWith(busqueda.toLowerCase())
+					);
+				}
+				break;
+			case "droga":
+				if (filtrobusqueda === "default") {
+					medAux = medAux.filter((m) =>
+						m.droga.toLowerCase().includes(busqueda.toLowerCase())
+					);
+				} else if (filtrobusqueda === "comienza") {
+					medAux = medAux.filter((m) =>
+						m.droga.toLowerCase().startsWith(busqueda.toLowerCase())
+					);
+				}
+				break;
+			case "tipo":
+				if (filtrobusqueda === "default") {
+					medAux = medAux.filter((m) =>
+						m.tipo.toLowerCase().includes(busqueda.toLowerCase())
+					);
+				} else if (filtrobusqueda === "comienza") {
+					medAux = medAux.filter((m) =>
+						m.tipo.toLowerCase().startsWith(busqueda.toLowerCase())
+					);
+				}
+				break;
+
+			default:
+				//Declaraciones ejecutadas cuando ninguno de los valores coincide con el valor de la expresión
+				break;
+		}
+
+		setmedicamentos(medAux);
+
+		axios.post("http://localhost:5000/busquedamedicamento", {
+			columna: columnabusqueda,
+			filtro: filtrobusqueda,
+			busqueda: busqueda,
+		});
+		axios
+			.get("http://localhost:5000/busquedamedicamento")
+			.then((res) => console.log(res));
 	};
 
 	return (
@@ -110,7 +163,6 @@ const TablaMedicamentos = () => {
 									<option value="nombre">Nombre</option>
 									<option value="droga">Droga</option>
 									<option value="tipo">Tipo</option>
-									<option value="activo">Activo</option>
 								</Form.Select>
 							</Form.Group>
 						</Col>
@@ -124,7 +176,6 @@ const TablaMedicamentos = () => {
 									<option value="filtro">Filtro</option>
 									<option value="default">Default</option>
 									<option value="comienza">Comienza con</option>
-									<option value="termina">Termina con</option>
 								</Form.Select>
 							</Form.Group>
 						</Col>
@@ -145,7 +196,7 @@ const TablaMedicamentos = () => {
 								<Button
 									variant="primary"
 									type="button"
-									onClick={() => handleSubmit()}
+									onClick={(e) => handleSubmit(e)}
 								>
 									Buscar
 								</Button>
@@ -156,8 +207,11 @@ const TablaMedicamentos = () => {
 
 				<CRUDTable caption="Medicamentos" items={medicamentos}>
 					<Fields>
-						<Field name="codigo" label="Codigo" placeholder="Codigo (XXX-NNNNN-Y)" />
-						<Field name="activo" label="Activo" placeholder="Activo" />
+						<Field
+							name="codigo"
+							label="Codigo"
+							placeholder="Codigo (XXX-NNNNN-Y)"
+						/>
 						<Field name="nombre" label="Nombre" placeholder="Nombre" />
 						<Field name="droga" label="Droga" placeholder="Droga" />
 						<Field name="tipo" label="Tipo" placeholder="Tipo" />
@@ -181,8 +235,9 @@ const TablaMedicamentos = () => {
 								errors.droga = "Ingresar una droga";
 							}
 
-							if (!values.tipo) {
-								errors.droga = "Seleccionar un tipo";
+							if (!values.tipo || !categorias.includes(values.tipo)) {
+								errors.tipo =
+									"Ingrese un tipo entre los siguientes: " + categorias;
 							}
 
 							return errors;
@@ -210,7 +265,7 @@ const TablaMedicamentos = () => {
 							}
 
 							if (!values.tipo) {
-								errors.droga = "Seleccionar un tipo";
+								errors.tipo = "Tipos a elegir: ";
 							}
 
 							return errors;

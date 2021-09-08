@@ -1,5 +1,6 @@
 import TablaMedicamentos from "./components/ui/TablaMedicamentos";
 import TablaTipoMedicamentos from "./components/ui/TablaTipoMedicamentos";
+import VerificarCodigo from "./components/ui/VerificarCodigo";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
@@ -15,6 +16,7 @@ function App() {
 						<Nav className="me-auto">
 							<Nav.Link><Link className="linknavbar" to="/">Medicamentos</Link></Nav.Link>
 							<Nav.Link><Link className="linknavbar" to="/tiposmedicamentos">Tipos</Link></Nav.Link>
+							<Nav.Link><Link className="linknavbar" to="/verificarcodigo">Verificar Codigo</Link></Nav.Link>
 						</Nav>
 					</Container>
 				</Navbar>
@@ -24,6 +26,11 @@ function App() {
 					exact
 					path="/tiposmedicamentos"
 					component={TablaTipoMedicamentos}
+				/>
+				<Route
+					exact
+					path="/verificarcodigo"
+					component={VerificarCodigo}
 				/>
 			</div>
 		</Router>

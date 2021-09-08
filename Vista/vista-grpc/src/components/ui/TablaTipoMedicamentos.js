@@ -16,34 +16,6 @@ import Button from "react-bootstrap/Button";
 // Component's Base CSS
 import "./index.css";
 
-const SORTERS = {
-	NUMBER_ASCENDING: (mapper) => (a, b) => mapper(a) - mapper(b),
-	NUMBER_DESCENDING: (mapper) => (a, b) => mapper(b) - mapper(a),
-	STRING_ASCENDING: (mapper) => (a, b) => mapper(a).localeCompare(mapper(b)),
-	STRING_DESCENDING: (mapper) => (a, b) => mapper(b).localeCompare(mapper(a)),
-};
-
-const getSorter = (data) => {
-	const mapper = (x) => x[data.field];
-	let sorter = SORTERS.STRING_ASCENDING(mapper);
-
-	if (data.field === "id") {
-		sorter =
-			data.direction === "ascending"
-				? SORTERS.NUMBER_ASCENDING(mapper)
-				: SORTERS.NUMBER_DESCENDING(mapper);
-	} else {
-		sorter =
-			data.direction === "ascending"
-				? SORTERS.STRING_ASCENDING(mapper)
-				: SORTERS.STRING_DESCENDING(mapper);
-	}
-
-	return sorter;
-};
-
-
-
 const styles = {
 	container: { margin: "auto", width: "fit-content" },
 };
@@ -72,11 +44,6 @@ const TablaTipoMedicamentos = () => {
 
 	let count = tipomedicamentos.length;
 	const service = {
-		fetchItems: (payload) => {
-			let result = Array.from(tipomedicamentos);
-			result = result.sort(getSorter(payload.sort));
-			return Promise.resolve(result);
-		},
 		create: (med) => {
 			count += 1;
 			var medAux = tipomedicamentos;
@@ -85,6 +52,14 @@ const TablaTipoMedicamentos = () => {
 				id: count,
 			})
 			settipomedicamentos(medAux);
+
+			axios.post("http://localhost:5000/altatipomedicamento", {
+				id: med.id,
+				nombre: med.nombre,
+				activo: med.activo,
+			});
+			axios.get("http://localhost:5000/altatipomedicamento").then((res) => console.log(res));
+
 			return Promise.resolve(med);
 		},
 		update: (data) => {
@@ -96,14 +71,21 @@ const TablaTipoMedicamentos = () => {
 		changeStatus: (data) => {
 			var med = tipomedicamentos.find((t) => t.id === data.id);
 			med.activo = med.activo === "Si" ? "No" : "Si";
+
+			axios.post("http://localhost:5000/bajatipomedicamento", {
+				id: med.id,
+				activo: med.activo,
+			});
+			axios.get("http://localhost:5000/bajatipomedicamento").then((res) => console.log(res));
+
 			return Promise.resolve(med);
 		},
 	};
 
 
 
-	const handleSubmit = () => {
-
+	const handleSubmit = e => {
+		e.preventDefault();
 		let meds = [
 			{
 				id: 1,
@@ -150,7 +132,7 @@ const TablaTipoMedicamentos = () => {
 
 					<Col>
 						<Form.Group>
-							<Button variant="primary" type="button" onClick={() => handleSubmit()}>
+							<Button variant="primary" type="button" onClick={(e) => handleSubmit(e)}>
 								Buscar
 							</Button>
 						</Form.Group>
