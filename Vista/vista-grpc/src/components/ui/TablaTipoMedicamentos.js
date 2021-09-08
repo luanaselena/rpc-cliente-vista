@@ -23,7 +23,7 @@ const styles = {
 
 const TablaTipoMedicamentos = () => {
 	
-	let tasks = [
+	let categoriasIniciales = [
 		{
 			id: 1,
 			nombre: "Capsulas blandas",
@@ -31,12 +31,27 @@ const TablaTipoMedicamentos = () => {
 		},
 		{
 			id: 2,
-			nombre: "Improve",
+			nombre: "Comprimidos",
       activo: "Si"
+		},
+		{
+			id: 3,
+			nombre: "Crema",
+      activo: "Si"
+		},
+		{
+			id: 4,
+			nombre: "Aerosol",
+      activo: "Si"
+		},
+		{
+			id: 5,
+			nombre: "Pomada",
+      activo: "No"
 		},
 	];
 
-	const [tipomedicamentos, settipomedicamentos] = useState(tasks);
+	const [tipomedicamentos, settipomedicamentos] = useState(categoriasIniciales);
 	const [busqueda, setbusqueda] = useState("");
 	const [columnabusqueda, setcolumnabusqueda] = useState("columna");
 	const [filtrobusqueda, setfiltrobusqueda] = useState("filtro");

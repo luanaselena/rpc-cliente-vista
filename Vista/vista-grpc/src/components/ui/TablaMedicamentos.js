@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ReactDOM from "react-dom";
 import CRUDTable, {
@@ -19,36 +19,100 @@ const styles = {
 };
 
 const TablaMedicamentos = () => {
-	let tasks = [
+	let medicamentosIniciales = [
 		{
-			codigo: 1,
-			nombre: "Create an example",
-			droga: "Create an example of how to use the component",
+			codigo: "AIC-23142-4",
+			nombre: "Actron",
+			droga: "Ibuprofeno",
+			tipo: "Capsulas blandas",
 		},
 		{
-			codigo: 2,
-			nombre: "Improve",
-			droga: "Improve the component!",
+			codigo: "AIC-42182-8",
+			nombre: "Actron",
+			droga: "Ibuprofeno",
+			tipo: "Comprimidos",
+		},
+		{
+			codigo: "RCC-74512-1",
+			nombre: "Rivotril",
+			droga: "Clonazepam",
+			tipo: "Comprimidos",
+		},
+		{
+			codigo: "IIC-58403-2",
+			nombre: "Ibuevanol",
+			droga: "Ibuprofeno",
+			tipo: "Capsulas blandas",
+		},
+		{
+			codigo: "LBC-49320-9",
+			nombre: "Laxamin",
+			droga: "Bisacodilo",
+			tipo: "Comprimidos",
+		},
+		{
+			codigo: "KSC-92325-3",
+			nombre: "Ketorolac",
+			droga: "Sinalgico",
+			tipo: "Capsulas blandas",
+		},
+		{
+			codigo: "TPC-32473-1",
+			nombre: "Tafirol",
+			droga: "Paracetamol",
+			tipo: "Capsulas blandas",
+		},
+		{
+			codigo: "OOC-08123-5",
+			nombre: "Omeprasec",
+			droga: "Omeprazol",
+			tipo: "Capsulas blandas",
+		},
+		{
+			codigo: "DIC-51325-7",
+			nombre: "Desinflamasol",
+			droga: "Ibuprofeno",
+			tipo: "Crema",
 		},
 	];
 
+	let categorias = [
+		"Capsulas blandas",
+		"Comprimidos",
+		"Crema",
+		"Aerosol",
+		"Pomada",
+	];
 
-	
-	const categorias = ["Capsulas", "Comprimidos", "Cremas"];
-
-	const [medicamentos, setmedicamentos] = useState(tasks);
+	const [medicamentos, setmedicamentos] = useState(medicamentosIniciales);
 	const [busqueda, setbusqueda] = useState("");
 	const [columnabusqueda, setcolumnabusqueda] = useState("columna");
 	const [filtrobusqueda, setfiltrobusqueda] = useState("filtro");
 
-	let count = medicamentos.length;
+	// useEffect(() => {
+	// 	axios.get("http://localhost:5000/listamedicamentossocilitud");
+
+	// 	axios
+	// 		.get("http://localhost:5000/listamedicamentosrespuesta")
+	// 		.then((res) => {
+	// 			//console.log(res.data.responseMessage);
+	// 			//Transformar listado en JSON
+	// 			var resp = res.data.responseMessage;
+	// 			resp = resp.replace(/'/g, "@");
+	// 			resp = resp.replace(/"/g, "'");
+	// 			resp = resp.replace(/@/g, '"');
+	// 			console.log(resp);
+	// 			resp = JSON.parse(resp);
+	// 			console.log(resp);
+	// 			//setmedicamentos(resp);
+	// 		});
+	// }, []);
+
 	const service = {
 		create: (med) => {
-			count += 1;
 			var medAux = medicamentos;
 			medAux.push({
 				...med,
-				codigo: count,
 			});
 			console.log(medAux);
 			setmedicamentos(medAux);
