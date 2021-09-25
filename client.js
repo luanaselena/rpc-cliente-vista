@@ -2,7 +2,7 @@
 const express = require("express");
 var cors = require("cors");
 const axios = require("axios");
-const farmacia = require('./configuraciones');
+const farmacia = require("./configuraciones");
 
 //Configuraciones de express (sirve para que el cliente funcione como server para comunicarse con la vista)
 const app = express();
@@ -20,132 +20,136 @@ app.get("/hello", (req, res) => {
 
 //----METODOS----
 
-//Alta de medicamento
-function altaMedicamento(codigo, nombre, droga, tipo) {
-	farmacia.alta({ codigo: codigo, nombre: nombre, droga: droga, tipo: tipo}, function (err, response) {
-		
-    //Envia la respuesta a la vista
-    app.get("/altamedicamento", (req, res) => {
-      res.send(response);
-    });
+//Alta medicamento
+app.post("/altamedicamento", (req, res) => {
+	console.log("Alta medicamento: ");
+	console.log(req.body);
+
+	farmacia.alta(
+		{
+			codigo: req.body.codigo,
+			nombre: req.body.nombre,
+			droga: req.body.droga,
+			tipo: req.body.categoria,
+		},
+		function (err, response) {
+			//Envia la respuesta a la vista
+			app.get("/altamedicamento", (req, res) => {
+				console.log(response)
+			});
+
+			if (response !== undefined) {
+				console.log("Mensaje: " + response.responseMessage + "\n");
+			} else {
+				console.log("Error");
+			}
+
+		}
+	);
+});
+
+//Alta de tipo de medicamento
+function altaCategoriaMedicamento(id, nombre) {
+	farmacia.altaTipo({ id: id, nombre: nombre }, function (err, response) {
+		//Envia la respuesta a la vista
+		app.get("/altatipomedicamento", (req, res) => {
+			res.send(response);
+		});
 
 		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
 }
 
-function altaCategoriaMedicamento(id, nombre, activo) {
-	farmacia.altaTipo({ id: id, nombre: nombre, baja: activo}, function (err, response) {
-		
-    //Envia la respuesta a la vista
-    app.get("/altatipomedicamento", (req, res) => {
-      res.send(response);
-    });
+//Baja categoria medicamento
+app.post("/bajatipomedicamento", (req, res) => {
+	console.log("Baja categoria medicamento: ");
+	console.log(req.body);
+
+	farmacia.bajaTipo({ id: req.body.id }, function (err, response) {
+		//Envia la respuesta a la vista
+		// app.get("/bajatipomedicamento", (req, res) => {
+		// 	res.send(response);
+		// });
 
 		console.log("Mensaje: " + response.responseMessage + "\n");
 	});
-}
+});
 
-function bajaCategoriaMedicamento(id, activo) {
-	farmacia.bajaTipo({ id: id, baja: activo}, function (err, response) {
-		
-    //Envia la respuesta a la vista
-    app.get("/bajatipomedicamento", (req, res) => {
-      res.send(response);
-    });
-
-		console.log("Mensaje: " + response.responseMessage + "\n");
-	});
-}
 
 function busquedaMedicamento(columna, filtro, busqueda) {
 	//MODIFICAR METODO
-	farmacia.busquedaPorPalabra({ columna: columna, filtro: filtro, buscar: busqueda}, function (err, response) {
-		
-    //Envia la respuesta a la vista
-    app.get("/busquedamedicamento", (req, res) => {
-      res.send(response);
-    });
+	farmacia.busquedaPorPalabra(
+		{ columna: columna, filtro: filtro, buscar: busqueda },
+		function (err, response) {
+			//Envia la respuesta a la vista
+			app.get("/busquedamedicamento", (req, res) => {
+				res.send(response);
+			});
 
-		console.log("Mensaje: " + response.responseMessage + "\n");
-	});
+			console.log("Mensaje: " + response.responseMessage + "\n");
+		}
+	);
 }
 
-// function listaMedicamentos() {
-// 	farmacia.listadoMedicamentos({ }, function (err, response) {
+//Lista de medicamentos
+app.get("/listamedicamentos", (req, res) => {
+	farmacia.listadoMedicamentos({}, function (err, response) {
+		
+		res.send(response.responseMessage);
+		console.log(response.responseMessage);
+	});
+});
 
-// 		//Envia la respuesta a la vista
-//     app.get("/listamedicamentosrespuesta", (req, res) => {
-//       res.send(response);
-//     });
-
-// 		//console.log("Mensaje: " + response.responseMessage + "\n");
-// 	});
-// }
-
+//Lista de categorias de medicamentos
+app.get("/listatiposmedicamentos", (req, res) => {
+	farmacia.listadoCodigos({}, function (err, response) {
+		
+		res.send(response.responseMessage);
+		console.log("Lista Categorias");
+		console.log(response.responseMessage);
+	});
+});
 
 function verificarDigito(codigo) {
-	farmacia.digitoVerificador({ digito: codigo}, function (err, response) {
-		
-    //Envia la respuesta a la vista
-    app.get("/verificardigito", (req, res) => {
-      res.send(response);
-    });
+	farmacia.digitoVerificador({ digito: codigo }, function (err, response) {
+		//Envia la respuesta a la vista
+		app.get("/verificardigito", (req, res) => {
+			res.send(response);
+		});
 
 		console.log("Mensaje: " + response + "\n");
 	});
 }
 
-
 //----LLAMADAS AXIOS----
-
-//Alta medicamento
-app.post("/altamedicamento", (req, res) => {
-  console.log("Alta medicamento: ")
-	console.log(req.body);
-	altaMedicamento(req.body.codigo, req.body.nombre, req.body.droga, req.body.tipo);
-});
 
 //Alta categoria medicamento
 app.post("/altatipomedicamento", (req, res) => {
-  console.log("Alta categoria medicamento: ")
+	console.log("Alta categoria medicamento: ");
 	console.log(req.body);
-	
-	req.body.activo = req.body.activo === "Si" ? 0 : 1;
 
-	altaCategoriaMedicamento(req.body.id, req.body.nombre, req.body.activo);
-});
-
-//Baja categoria medicamento
-app.post("/bajatipomedicamento", (req, res) => {
-  console.log("Baja categoria medicamento: ")
-	console.log(req.body);
-	
-	req.body.activo = req.body.activo === "Si" ? 0 : 1;
-
-	bajaCategoriaMedicamento(req.body.id, req.body.activo);
+	altaCategoriaMedicamento(req.body.id, req.body.nombre);
 });
 
 //Busqueda medicamento
 app.post("/busquedamedicamento", (req, res) => {
-  console.log("Busqueda medicamento: ")
+	console.log("Busqueda medicamento: ");
 	console.log(req.body);
 
 	busquedaMedicamento(req.body.columna, req.body.filtro, req.body.busqueda);
 });
 
-// //Lista de medicamentos
-// app.get("/listamedicamentossocilitud", (req, res) => {
-// 	listaMedicamentos();
-// })
+//Lista de tipos de medicamentos
+app.get("/listatiposmedicamentos", (req, res) => {
+	listaTiposMedicamentos();
+});
 
 app.post("/verificardigito", (req, res) => {
-	console.log("Verificar digito: ")
+	console.log("Verificar digito: ");
 	console.log(req.body);
 
 	verificarDigito(req.body.codigo);
 });
-
-
 
 //Inicio de la app
 app.listen(app.get("PORT"), () => {

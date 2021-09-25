@@ -19,113 +19,47 @@ const styles = {
 };
 
 const TablaMedicamentos = () => {
-	let medicamentosIniciales = [
-		{
-			codigo: "AIC-23142-4",
-			nombre: "Actron",
-			droga: "Ibuprofeno",
-			tipo: "Capsulas blandas",
-		},
-		{
-			codigo: "AIC-42182-8",
-			nombre: "Actron",
-			droga: "Ibuprofeno",
-			tipo: "Comprimidos",
-		},
-		{
-			codigo: "RCC-74512-1",
-			nombre: "Rivotril",
-			droga: "Clonazepam",
-			tipo: "Comprimidos",
-		},
-		{
-			codigo: "IIC-58403-2",
-			nombre: "Ibuevanol",
-			droga: "Ibuprofeno",
-			tipo: "Capsulas blandas",
-		},
-		{
-			codigo: "LBC-49320-9",
-			nombre: "Laxamin",
-			droga: "Bisacodilo",
-			tipo: "Comprimidos",
-		},
-		{
-			codigo: "KSC-92325-3",
-			nombre: "Ketorolac",
-			droga: "Sinalgico",
-			tipo: "Capsulas blandas",
-		},
-		{
-			codigo: "TPC-32473-1",
-			nombre: "Tafirol",
-			droga: "Paracetamol",
-			tipo: "Capsulas blandas",
-		},
-		{
-			codigo: "OOC-08123-5",
-			nombre: "Omeprasec",
-			droga: "Omeprazol",
-			tipo: "Capsulas blandas",
-		},
-		{
-			codigo: "DIC-51325-7",
-			nombre: "Desinflamasol",
-			droga: "Ibuprofeno",
-			tipo: "Crema",
-		},
-	];
-
-	let categorias = [
-		"Capsulas blandas",
-		"Comprimidos",
-		"Crema",
-		"Aerosol",
-		"Pomada",
-	];
-
-	const [medicamentos, setmedicamentos] = useState(medicamentosIniciales);
+	const [medicamentos, setmedicamentos] = useState([]);
+	const [categorias, setcategorias] = useState([]);
 	const [busqueda, setbusqueda] = useState("");
 	const [columnabusqueda, setcolumnabusqueda] = useState("columna");
 	const [filtrobusqueda, setfiltrobusqueda] = useState("filtro");
 
-	// useEffect(() => {
-	// 	axios.get("http://localhost:5000/listamedicamentossocilitud");
+	const fetchMedicamentos = async () => {
+		const result = await axios.get("http://localhost:5000/listamedicamentos");
 
-	// 	axios
-	// 		.get("http://localhost:5000/listamedicamentosrespuesta")
-	// 		.then((res) => {
-	// 			//console.log(res.data.responseMessage);
-	// 			//Transformar listado en JSON
-	// 			var resp = res.data.responseMessage;
-	// 			resp = resp.replace(/'/g, "@");
-	// 			resp = resp.replace(/"/g, "'");
-	// 			resp = resp.replace(/@/g, '"');
-	// 			console.log(resp);
-	// 			resp = JSON.parse(resp);
-	// 			console.log(resp);
-	// 			//setmedicamentos(resp);
-	// 		});
-	// }, []);
+		result.data.forEach(r => {
+			r.categoria = r.categoria.nombre;
+		});
+
+		setmedicamentos(result.data);
+		console.log(result.data);
+	};
+
+	const fetchTiposMedicamentos = async () => {
+		const resultTipos = await axios.get(
+			"http://localhost:5000/listatiposmedicamentos"
+		);
+
+		setcategorias(resultTipos.data);
+		console.log(resultTipos.data);
+	};
+
+	useEffect(() => {
+		fetchMedicamentos();
+		fetchTiposMedicamentos();
+	}, []);
 
 	const service = {
 		create: (med) => {
-			var medAux = medicamentos;
-			medAux.push({
-				...med,
-			});
-			console.log(medAux);
-			setmedicamentos(medAux);
-
 			axios.post("http://localhost:5000/altamedicamento", {
 				codigo: med.codigo,
 				nombre: med.nombre,
 				droga: med.droga,
-				tipo: med.tipo,
+				categoria: med.categoria,
 			});
-			axios
-				.get("http://localhost:5000/altamedicamento")
-				.then((res) => console.log(res.data.responseMessage));
+
+			window.location.reload();
 
 			return Promise.resolve(med);
 		},
@@ -183,14 +117,14 @@ const TablaMedicamentos = () => {
 					);
 				}
 				break;
-			case "tipo":
+			case "categoria":
 				if (filtrobusqueda === "default") {
 					medAux = medAux.filter((m) =>
-						m.tipo.toLowerCase().includes(busqueda.toLowerCase())
+						m.categoria.toLowerCase().includes(busqueda.toLowerCase())
 					);
 				} else if (filtrobusqueda === "comienza") {
 					medAux = medAux.filter((m) =>
-						m.tipo.toLowerCase().startsWith(busqueda.toLowerCase())
+						m.categoria.toLowerCase().startsWith(busqueda.toLowerCase())
 					);
 				}
 				break;
@@ -201,14 +135,12 @@ const TablaMedicamentos = () => {
 
 		setmedicamentos(medAux);
 
-		axios.post("http://localhost:5000/busquedamedicamento", {
-			columna: columnabusqueda,
-			filtro: filtrobusqueda,
-			busqueda: busqueda,
-		});
-		axios
-			.get("http://localhost:5000/busquedamedicamento")
-			.then((res) => console.log(res.data.responseMessage));
+		// await axios.post("http://localhost:5000/busquedamedicamento", {
+		// 	//columna: columnabusqueda,
+		// 	filtro: filtrobusqueda,
+		// 	busqueda: busqueda,
+		// });
+
 	};
 
 	return (
@@ -227,7 +159,7 @@ const TablaMedicamentos = () => {
 									<option value="codigo">Codigo</option>
 									<option value="nombre">Nombre</option>
 									<option value="droga">Droga</option>
-									<option value="tipo">Tipo</option>
+									<option value="categoria">Categoria</option>
 								</Form.Select>
 							</Form.Group>
 						</Col>
@@ -279,7 +211,7 @@ const TablaMedicamentos = () => {
 						/>
 						<Field name="nombre" label="Nombre" placeholder="Nombre" />
 						<Field name="droga" label="Droga" placeholder="Droga" />
-						<Field name="tipo" label="Tipo" placeholder="Tipo" />
+						<Field name="categoria" label="Categoria" placeholder="Categoria" />
 					</Fields>
 					<CreateForm
 						title="Agregar un medicamento"
@@ -300,9 +232,8 @@ const TablaMedicamentos = () => {
 								errors.droga = "Ingresar una droga";
 							}
 
-							if (!values.tipo || !categorias.includes(values.tipo)) {
-								errors.tipo =
-									"Ingrese un tipo entre los siguientes: " + categorias;
+							if (!values.categoria || categorias.some(c => c.nombre === values.categoria)) {
+								errors.categoria = "Categoria no valida";
 							}
 
 							return errors;
@@ -312,7 +243,7 @@ const TablaMedicamentos = () => {
 					<UpdateForm
 						title="Modificar medicamento"
 						trigger="Update"
-						onSubmit={(med) => service.update(med)}
+						//onSubmit={(med) => service.update(med)}
 						submitText="Update"
 						validate={(values) => {
 							const errors = {};
@@ -329,8 +260,8 @@ const TablaMedicamentos = () => {
 								errors.droga = "Ingresar una droga";
 							}
 
-							if (!values.tipo) {
-								errors.tipo = "Tipos a elegir: ";
+							if (!values.categoria) {
+								errors.categoria = "Categorias a elegir: ";
 							}
 
 							return errors;
@@ -340,7 +271,7 @@ const TablaMedicamentos = () => {
 					<DeleteForm
 						title="Eliminar medicamento"
 						trigger="Delete"
-						onSubmit={(med) => service.delete(med)}
+						//onSubmit={(med) => service.delete(med)}
 						submitText="Eliminar"
 					/>
 				</CRUDTable>
