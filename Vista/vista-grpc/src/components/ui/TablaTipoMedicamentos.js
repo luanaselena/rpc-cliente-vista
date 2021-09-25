@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
 import ReactDOM from "react-dom";
 import CRUDTable, {
@@ -8,10 +8,6 @@ import CRUDTable, {
 	UpdateForm,
 	DeleteForm,
 } from "react-crud-table";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 
 // Component's Base CSS
 import "./index.css";
@@ -20,149 +16,71 @@ const styles = {
 	container: { margin: "auto", width: "fit-content" },
 };
 
-
 const TablaTipoMedicamentos = () => {
-	
-	let categoriasIniciales = [
-		{
-			id: 1,
-			nombre: "Capsulas blandas",
-      activo: "Si"
-		},
-		{
-			id: 2,
-			nombre: "Comprimidos",
-      activo: "Si"
-		},
-		{
-			id: 3,
-			nombre: "Crema",
-      activo: "Si"
-		},
-		{
-			id: 4,
-			nombre: "Aerosol",
-      activo: "Si"
-		},
-		{
-			id: 5,
-			nombre: "Pomada",
-      activo: "No"
-		},
-	];
 
-	const [tipomedicamentos, settipomedicamentos] = useState(categoriasIniciales);
-	const [busqueda, setbusqueda] = useState("");
-	const [columnabusqueda, setcolumnabusqueda] = useState("columna");
-	const [filtrobusqueda, setfiltrobusqueda] = useState("filtro");
-	
+	const [categorias, setcategorias] = useState([]);
 
-	let count = tipomedicamentos.length;
+	const fetchTiposMedicamentos = async () => {
+		const resultTipos = await axios.get(
+			"http://localhost:5000/listatiposmedicamentos"
+		);
+		console.log(resultTipos.data);
+
+		resultTipos.data.forEach(c => {
+			if(c.baja === false){
+				c.baja = "Si"
+			} else {
+				c.baja = "No"
+			}
+		})
+
+		setcategorias(resultTipos.data);
+	};
+
+	useEffect(() => {
+		fetchTiposMedicamentos();
+	}, []);
+
 	const service = {
-		create: (med) => {
-			count += 1;
-			var medAux = tipomedicamentos;
-			medAux.push({
-				...med,
-				id: count,
-			})
-			settipomedicamentos(medAux);
-
+		create: async (med) => {
 			axios.post("http://localhost:5000/altatipomedicamento", {
-				id: med.id,
 				nombre: med.nombre,
-				activo: med.activo,
 			});
-			axios.get("http://localhost:5000/altatipomedicamento").then((res) => console.log(res.data.responseMessage));
+			
+			window.location.reload();
 
 			return Promise.resolve(med);
 		},
 		update: (data) => {
-			var med = tipomedicamentos.find((t) => t.id === data.id);
+			var med = categorias.find((t) => t.id === data.id);
 			med.nombre = data.nombre;
 			med.activo = data.activo;
 			return Promise.resolve(med);
 		},
 		changeStatus: (data) => {
-			var med = tipomedicamentos.find((t) => t.id === data.id);
-			med.activo = med.activo === "Si" ? "No" : "Si";
 
 			axios.post("http://localhost:5000/bajatipomedicamento", {
-				id: med.id,
-				activo: med.activo,
+				id: data.id
 			});
-			axios.get("http://localhost:5000/bajatipomedicamento").then((res) => console.log(res.data.responseMessage));
 
-			return Promise.resolve(med);
+			window.location.reload();
+
+			return Promise.resolve(data);
 		},
 	};
 
 
-
-	const handleSubmit = e => {
-		e.preventDefault();
-		let meds = [
-			{
-				id: 1,
-				nombre: "Capsula",
-			},
-			{
-				id: 2,
-				nombre: "Injectable",
-			},
-		];
-
-		settipomedicamentos(meds);
-	}
-
 	return (
 		<div style={styles.container}>
-			<Form>
-				<Row>
-					<Col>
-						<Form.Group className="mb-3" controlId="formGroupColumna">
-							<Form.Select aria-label="Columna" value={columnabusqueda} onChange={e => setcolumnabusqueda(e.target.value)}>
-								<option value="columna">Columna</option>
-								<option value="id">ID</option>
-								<option value="nombre">Nombre</option>
-							</Form.Select>
-						</Form.Group>
-					</Col>
-					<Col>
-						<Form.Group className="mb-3" controlId="formGroupFiltro">
-							<Form.Select aria-label="Filtro" value={filtrobusqueda} onChange={e => setfiltrobusqueda(e.target.value)}>
-								<option value="filtro">Filtro</option>
-								<option value="default">Default</option>
-								<option value="comienza">Comienza con</option>
-								<option value="termina">Termina con</option>
-							</Form.Select>
-						</Form.Group>
-					</Col>
-
-					<Col>
-						<Form.Group>
-							<Form.Control type="text" placeholder="Busqueda" value={busqueda} onChange={e => setbusqueda(e.target.value)} />
-						</Form.Group>
-					</Col>
-
-					<Col>
-						<Form.Group>
-							<Button variant="primary" type="button" onClick={(e) => handleSubmit(e)}>
-								Buscar
-							</Button>
-						</Form.Group>
-					</Col>
-				</Row>
-			</Form>
 
 			<CRUDTable
 				caption="Tipos de medicamentos"
-				items={tipomedicamentos}
+				items={categorias}
 			>
 				<Fields>
 					<Field name="id" label="Id" hideInCreateForm readOnly />
           <Field name="nombre" label="Nombre" placeholder="Nombre" />
-					<Field name="activo" label="Activo" placeholder="Activo" />
+					<Field name="baja" label="Activo" placeholder="Activo" hideInCreateForm/>
 				</Fields>
 				<CreateForm
 					title="Agregar un tipo de medicamento"
@@ -174,10 +92,6 @@ const TablaTipoMedicamentos = () => {
 						if (!values.nombre) {
 							errors.nombre = "Ingrese un nombre";
 						}
-
-            if (!values.activo || (values.activo !== "Si" && values.activo !== "No")) {
-							errors.activo = "Ingrese Si o No";
-						}
 						return errors;
 					}}
 				/>
@@ -185,7 +99,7 @@ const TablaTipoMedicamentos = () => {
 				<UpdateForm
 					title="Modificar medicamento"
 					trigger="Update"
-					onSubmit={(med) => service.update(med)}
+					//onSubmit={(med) => service.update(med)}
 					submitText="Update"
 					validate={(values) => {
 						const errors = {};
